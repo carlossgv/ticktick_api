@@ -33,8 +33,9 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
         .send()
         .await?;
 
-    let response: String = response.text().await?;
-    println!("Token: {}", response);
+    let cookies = response.cookies().collect::<Vec<_>>();
+
+    println!("Cookies: {:?}", cookies);
 
     Ok(())
 }
