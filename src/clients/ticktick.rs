@@ -68,9 +68,7 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
 
             let mut session_cookies = Vec::<String>::new();
             for cookie in response.cookies() {
-                println!("\n Cookie: {:?}", cookie);
                 if cookie.value() == "" {
-                    println!("Cookie is empty");
                     continue;
                 }
                 session_cookies.push(format!("{}={}", cookie.name(), cookie.value()));
@@ -92,16 +90,12 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
 }
 
 fn get_session_cookies(absolute_file_path: &str) -> Vec<String> {
-    // Read the file to a String
     if let Ok(session_cookies_str) = fs::read_to_string(absolute_file_path) {
-        // Split the String into Vec<String>
         let session_cookies: Vec<String> = session_cookies_str
             .split(';')
             .map(|s| s.trim().to_string()) // Convert each slice to owned String
             .collect();
 
-        // Now you have a Vec<String> of session cookies
-        println!("{:?}", session_cookies);
         return session_cookies;
     } else {
         println!("Something went wrong reading the file");
@@ -118,6 +112,74 @@ pub async fn get_user_info() -> Result<(), Box<dyn std::error::Error>> {
         .header("content-type", "application/json")
         .header("x-device", X_DEVICE_HEADER)
         .header("Cookie", session_cookies.join(";"))
+        .send()
+        .await?;
+
+    match response.status().is_success() {
+        true => {
+            let user_info: serde_json::Value = response.json().await?;
+            println!("User Info: {}", user_info);
+        }
+        false => {
+            let error_response: ErrorLoginResponse = response.json().await?;
+            println!(
+                "Get user info failed! Error Code: {}, Message: {}, ID: {}",
+                error_response.error_code, error_response.error_message, error_response.error_id
+            );
+            println!("Remainder times: {}", error_response.data.remainder_times);
+        }
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct HandleTasks {
+    add: Vec<Task>,
+    update: Vec<Task>,
+    delete: Vec<Task>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Task {
+    pub title: String,
+    pub project_id: Option<String>,
+    pub id: Option<String>,
+}
+
+pub enum Action {
+    Add,
+    Update,
+    Delete,
+}
+
+pub async fn handle_tasks(
+    tasks_list: Vec<Task>,
+    action: Action,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut request_body = HandleTasks {
+        add: Vec::new(),
+        update: Vec::new(),
+        delete: Vec::new(),
+    };
+
+    match action {
+        Action::Add => request_body.add = tasks_list,
+        Action::Update => request_body.update = tasks_list,
+        Action::Delete => request_body.delete = tasks_list,
+    }
+
+    let client = reqwest::Client::new();
+    let absolute_file_path: String = get_file_path(DATA_FILE);
+    let session_cookies: Vec<String> = get_session_cookies(&absolute_file_path);
+
+    let response = client
+        .post(format!("{}/batch/task", TICK_TICK_URL))
+        .header("content-type", "application/json")
+        .header("x-device", X_DEVICE_HEADER)
+        .header("Cookie", session_cookies.join(";"))
+        .body(serde_json::to_string(&request_body)?)
         .send()
         .await?;
 
