@@ -1,7 +1,8 @@
+mod clients;
 use crate::clients::ticktick;
 use dotenv::dotenv;
 use std::env;
-pub mod clients;
+// mod countries;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -11,5 +12,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let password = env::var("PASSWORD").unwrap_or_else(|_| panic!("PASSWORD must be set in ENV"));
 
     ticktick::login(&username, &password).await?;
+    // countries::get_countries(&username, &password).await?;
     Ok(())
 }
