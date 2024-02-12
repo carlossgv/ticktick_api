@@ -91,14 +91,33 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
     Ok(())
 }
 
-pub async fn get_user_info(token: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let client = reqwest::Client::new();
+fn get_session_cookies(absolute_file_path: &str) -> Vec<String> {
+    // Read the file to a String
+    if let Ok(session_cookies_str) = fs::read_to_string(absolute_file_path) {
+        // Split the String into Vec<String>
+        let session_cookies: Vec<String> = session_cookies_str
+            .split(';')
+            .map(|s| s.trim().to_string()) // Convert each slice to owned String
+            .collect();
 
+        // Now you have a Vec<String> of session cookies
+        println!("{:?}", session_cookies);
+        return session_cookies;
+    } else {
+        println!("Something went wrong reading the file");
+        todo!();
+    }
+}
+
+pub async fn get_user_info() -> Result<(), Box<dyn std::error::Error>> {
+    let client = reqwest::Client::new();
+    let absolute_file_path: String = get_file_path(DATA_FILE);
+    let session_cookies: Vec<String> = get_session_cookies(&absolute_file_path);
     let response = client
         .get(format!("{}/batch/check/0", TICK_TICK_URL))
         .header("content-type", "application/json")
         .header("x-device", X_DEVICE_HEADER)
-        .header("Authorization", format!("Bearer {}", token))
+        .header("Cookie", session_cookies.join(";"))
         .send()
         .await?;
 
