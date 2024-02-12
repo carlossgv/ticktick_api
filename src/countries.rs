@@ -3,8 +3,6 @@ use serde::{Deserialize, Serialize};
 // serde
 
 const URL: &str = "http://localhost:3000";
-// const API_KEY: &str = "2af9a32b8amsh7140e7bbfc78349p149893jsn2a19d1f3d4ca";
-// const API_HOST: &str = "andruxnet-random-famous-quotes.p.rapidapi.com";
 
 #[derive(Serialize)]
 struct RequestBody {
