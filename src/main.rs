@@ -2,13 +2,10 @@ mod clients;
 mod ticktick_cli;
 mod utils;
 use crate::clients::ticktick_client;
-use dotenv::dotenv;
 use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
-
     let args: Vec<String> = env::args().collect();
     let action = &args[1];
 
