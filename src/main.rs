@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         password = args.next();
                     }
                     _ => {
-                        println!("Invalid argument: {:?}", arg);
+                        continue;
                     }
                 }
             }
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         project_id = args.next();
                     }
                     _ => {
-                        println!("Invalid argument: {:?}", arg);
+                        continue;
                     }
                 }
             }
