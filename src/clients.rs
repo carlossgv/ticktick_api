@@ -1,1 +1,1 @@
-pub mod ticktick;
+pub mod ticktick_client;

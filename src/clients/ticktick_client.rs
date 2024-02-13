@@ -1,5 +1,6 @@
+use crate::utils::parse_user_data::{self, UserData};
 use dirs::home_dir;
-use reqwest;
+use reqwest::{self, Error};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -42,11 +43,8 @@ struct ErrorLoginResponseData {
     remainder_times: i32,
 }
 
-pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let body = LoginBody {
-        username: username.to_string(),
-        password: password.to_string(),
-    };
+pub async fn login(username: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
+    let body = LoginBody { username, password };
 
     let client = reqwest::Client::new();
 
@@ -75,6 +73,7 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
             }
 
             fs::write(absolute_file_path, session_cookies.join(";"))?;
+            println!("Login successful!");
         }
         false => {
             let error_response: ErrorLoginResponse = response.json().await?;
@@ -89,7 +88,7 @@ pub async fn login(username: &str, password: &str) -> Result<(), Box<dyn std::er
     Ok(())
 }
 
-fn get_session_cookies(absolute_file_path: &str) -> Vec<String> {
+pub fn get_session_cookies(absolute_file_path: &str) -> Vec<String> {
     if let Ok(session_cookies_str) = fs::read_to_string(absolute_file_path) {
         let session_cookies: Vec<String> = session_cookies_str
             .split(';')
@@ -103,7 +102,7 @@ fn get_session_cookies(absolute_file_path: &str) -> Vec<String> {
     }
 }
 
-pub async fn get_user_info() -> Result<(), Box<dyn std::error::Error>> {
+pub async fn get_user_info() -> Result<UserData, Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let absolute_file_path: String = get_file_path(DATA_FILE);
     let session_cookies: Vec<String> = get_session_cookies(&absolute_file_path);
@@ -117,8 +116,9 @@ pub async fn get_user_info() -> Result<(), Box<dyn std::error::Error>> {
 
     match response.status().is_success() {
         true => {
-            let user_info: serde_json::Value = response.json().await?;
-            println!("User Info: {}", user_info);
+            let user_info: UserData = response.json().await?;
+            println!("User Info: {:?}", user_info);
+            Ok(user_info)
         }
         false => {
             let error_response: ErrorLoginResponse = response.json().await?;
@@ -127,22 +127,24 @@ pub async fn get_user_info() -> Result<(), Box<dyn std::error::Error>> {
                 error_response.error_code, error_response.error_message, error_response.error_id
             );
             println!("Remainder times: {}", error_response.data.remainder_times);
+            todo!();
+            // Err(Box::new("Error"))
         }
     }
 
-    Ok(())
+    // Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct HandleTasks {
-    add: Vec<Task>,
-    update: Vec<Task>,
-    delete: Vec<Task>,
+    add: Vec<TaskBody>,
+    update: Vec<TaskBody>,
+    delete: Vec<TaskBody>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Task {
+pub struct TaskBody {
     pub title: String,
     pub project_id: Option<String>,
     pub id: Option<String>,
@@ -155,7 +157,7 @@ pub enum Action {
 }
 
 pub async fn handle_tasks(
-    tasks_list: Vec<Task>,
+    tasks_list: Vec<TaskBody>,
     action: Action,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut request_body = HandleTasks {
