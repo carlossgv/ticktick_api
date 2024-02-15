@@ -49,6 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut title = None;
             let mut project_id = None;
             let mut items: Option<Vec<ticktick_client::Item>> = None;
+            let mut desc = None;
 
             let mut args = env::args().skip(1);
 
@@ -56,6 +57,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 match arg.as_str() {
                     "-t" => {
                         title = args.next();
+                    }
+                    "-d" => {
+                        desc = args.next();
                     }
                     "-p" => {
                         project_id = args.next();
@@ -81,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             match title {
                 Some(title) => {
-                    ticktick_cli::add_tasks(title, items, project_id).await?;
+                    ticktick_cli::add_tasks(title, items, project_id, desc).await?;
                 }
                 None => {
                     println!("Title is required");

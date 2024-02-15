@@ -149,6 +149,7 @@ pub struct TaskBody {
     pub project_id: Option<String>,
     pub id: Option<String>,
     pub items: Option<Vec<Item>>,
+    pub desc: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
