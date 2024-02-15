@@ -1,6 +1,6 @@
-use crate::utils::parse_user_data::{self, UserData};
+use crate::utils::parse_user_data::UserData;
 use dirs::home_dir;
-use reqwest::{self, Error};
+use reqwest;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -148,6 +148,15 @@ pub struct TaskBody {
     pub title: String,
     pub project_id: Option<String>,
     pub id: Option<String>,
+    pub items: Option<Vec<Item>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Item {
+    pub title: String,
+    pub status: u8,
+    pub id: u128,
 }
 
 pub enum Action {

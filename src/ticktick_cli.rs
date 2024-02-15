@@ -6,12 +6,14 @@ pub async fn login(username: String, password: String) -> Result<(), Box<dyn std
 
 pub async fn add_tasks(
     title: String,
+    items: Option<Vec<ticktick_client::Item>>,
     project_id: Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let task = ticktick_client::TaskBody {
         title,
         project_id,
         id: None,
+        items,
     };
 
     ticktick_client::handle_tasks(vec![task], Action::Add).await

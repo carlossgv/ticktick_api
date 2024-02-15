@@ -1,3 +1,4 @@
+use rand::Rng;
 mod clients;
 mod ticktick_cli;
 mod utils;
@@ -47,6 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "add" => {
             let mut title = None;
             let mut project_id = None;
+            let mut items: Option<Vec<ticktick_client::Item>> = None;
 
             let mut args = env::args().skip(1);
 
@@ -58,6 +60,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "-p" => {
                         project_id = args.next();
                     }
+                    "-i" => {
+                        let items_str = args.next().unwrap();
+                        items = Some(
+                            items_str
+                                .split(",")
+                                .map(|item| ticktick_client::Item {
+                                    title: item.to_string().trim().to_string(),
+                                    status: 0,
+                                    id: generate_id(),
+                                })
+                                .collect(),
+                        );
+                    }
                     _ => {
                         continue;
                     }
@@ -66,7 +81,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             match title {
                 Some(title) => {
-                    ticktick_cli::add_tasks(title, project_id).await?;
+                    ticktick_cli::add_tasks(title, items, project_id).await?;
                 }
                 None => {
                     println!("Title is required");
@@ -79,4 +94,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+fn generate_id() -> u128 {
+    let mut rng = rand::thread_rng();
+    rng.gen()
 }
