@@ -45,6 +45,63 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
+        "update" => {
+            let mut title = None;
+            let mut project_id = None;
+            let mut items: Option<Vec<ticktick_client::Item>> = None;
+            let mut desc = None;
+            let mut id = None;
+
+            let mut args = env::args().skip(1);
+
+            while let Some(arg) = args.next() {
+                match arg.as_str() {
+                    "-t" => {
+                        title = args.next();
+                    }
+                    "-d" => {
+                        desc = args.next();
+                    }
+                    "-p" => {
+                        project_id = args.next();
+                    }
+                    "-id" => {
+                        id = args.next();
+                    }
+                    "-i" => {
+                        let items_str = args.next().unwrap();
+                        items = Some(
+                            items_str
+                                .split(",")
+                                .map(|item| ticktick_client::Item {
+                                    title: item.to_string().trim().to_string(),
+                                    status: 0,
+                                    id: generate_id(),
+                                })
+                                .collect(),
+                        );
+                    }
+                    _ => {
+                        continue;
+                    }
+                }
+            }
+
+            if id.is_none() || title.is_none() || project_id.is_none() {
+                println!("Required fields to update: id, title, project_id");
+                return Ok(());
+            }
+
+            ticktick_cli::update_task(
+                id.unwrap(),
+                title.unwrap(),
+                items,
+                project_id.unwrap(),
+                desc,
+            )
+            .await?;
+        }
+
         "add" => {
             let mut title = None;
             let mut project_id = None;
@@ -85,7 +142,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             match title {
                 Some(title) => {
-                    ticktick_cli::add_tasks(title, items, project_id, desc).await?;
+                    ticktick_cli::add_task(title, items, project_id, desc).await?;
                 }
                 None => {
                     println!("Title is required");

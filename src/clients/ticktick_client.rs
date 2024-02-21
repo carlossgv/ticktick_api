@@ -178,7 +178,14 @@ pub async fn handle_tasks(
 
     match action {
         Action::Add => request_body.add = tasks_list,
-        Action::Update => request_body.update = tasks_list,
+        Action::Update => {
+            tasks_list.iter().for_each(|task| {
+                if task.id.is_none() {
+                    panic!("Task id is required for update action");
+                }
+            });
+            request_body.update = tasks_list;
+        }
         Action::Delete => request_body.delete = tasks_list,
     }
 
