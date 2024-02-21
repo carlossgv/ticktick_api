@@ -10,6 +10,7 @@ pub async fn update_task(
     items: Option<Vec<ticktick_client::Item>>,
     project_id: String,
     desc: Option<String>,
+    content: Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let task = ticktick_client::TaskBody {
         title,
@@ -17,6 +18,7 @@ pub async fn update_task(
         id: Some(id),
         items,
         desc,
+        content,
     };
 
     ticktick_client::handle_tasks(vec![task], Action::Update).await
@@ -27,6 +29,7 @@ pub async fn add_task(
     items: Option<Vec<ticktick_client::Item>>,
     project_id: Option<String>,
     desc: Option<String>,
+    content: Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let task = ticktick_client::TaskBody {
         title,
@@ -34,6 +37,7 @@ pub async fn add_task(
         id: None,
         items,
         desc,
+        content,
     };
 
     ticktick_client::handle_tasks(vec![task], Action::Add).await

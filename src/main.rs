@@ -50,6 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut project_id = None;
             let mut items: Option<Vec<ticktick_client::Item>> = None;
             let mut desc = None;
+            let mut content = None;
             let mut id = None;
 
             let mut args = env::args().skip(1);
@@ -58,6 +59,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 match arg.as_str() {
                     "-t" => {
                         title = args.next();
+                    }
+                    "-c" => {
+                        content = args.next();
                     }
                     "-d" => {
                         desc = args.next();
@@ -98,6 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 items,
                 project_id.unwrap(),
                 desc,
+                content,
             )
             .await?;
         }
@@ -107,6 +112,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut project_id = None;
             let mut items: Option<Vec<ticktick_client::Item>> = None;
             let mut desc = None;
+            let mut content = None;
 
             let mut args = env::args().skip(1);
 
@@ -114,6 +120,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 match arg.as_str() {
                     "-t" => {
                         title = args.next();
+                    }
+                    "-c" => {
+                        content = args.next();
                     }
                     "-d" => {
                         desc = args.next();
@@ -142,7 +151,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             match title {
                 Some(title) => {
-                    ticktick_cli::add_task(title, items, project_id, desc).await?;
+                    ticktick_cli::add_task(title, items, project_id, desc, content).await?;
                 }
                 None => {
                     println!("Title is required");

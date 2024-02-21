@@ -150,6 +150,7 @@ pub struct TaskBody {
     pub id: Option<String>,
     pub items: Option<Vec<Item>>,
     pub desc: Option<String>,
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
