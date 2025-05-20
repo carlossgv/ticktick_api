@@ -1,6 +1,6 @@
 [package]
 name = "ticktick_api"
-version = "0.1.1-alpha"
+version = "0.1.1"
 edition = "2021"
 description = "A Rust library for the TickTick API"
 license = "MIT"
