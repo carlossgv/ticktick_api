@@ -146,11 +146,12 @@ struct HandleTasks {
 #[serde(rename_all = "camelCase")]
 pub struct TaskBody {
     pub title: String,
-    pub project_id: Option<String>,
+    // pub project_id: Option<String>,
     pub id: Option<String>,
-    pub items: Option<Vec<Item>>,
-    pub desc: Option<String>,
-    pub content: Option<String>,
+    // pub items: Option<Vec<Item>>,
+    // pub desc: Option<String>,
+    // pub content: Option<String>,
+    pub tags: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -193,6 +194,8 @@ pub async fn handle_tasks(
     let client = reqwest::Client::new();
     let absolute_file_path: String = get_file_path(DATA_FILE);
     let session_cookies: Vec<String> = get_session_cookies(&absolute_file_path);
+
+    println!("body: {:?}", request_body);
 
     let response = client
         .post(format!("{}/batch/task", TICK_TICK_URL))
