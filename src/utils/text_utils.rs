@@ -2,7 +2,6 @@ use crate::clients::ticktick_client::TaskBody;
 use regex::Regex;
 
 pub fn parse_task(input: &str) -> TaskBody {
-    println!("Parsing task: {}", input);
     // TODO: check regex for hashes in middle of words
     let tag_regex = Regex::new(r"#([\w-]+)").unwrap();
 

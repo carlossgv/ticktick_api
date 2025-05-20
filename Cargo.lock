@@ -1192,7 +1192,7 @@ dependencies = [
 
 [[package]]
 name = "ticktick_api"
-version = "0.1.1-alpha"
+version = "0.1.1"
 dependencies = [
  "dirs",
  "rand",
